@@ -87,6 +87,10 @@ class SimplexMinimize:
 
     #def calcWeightCenter(self):
 
+    # def k0_iteration(self, dots: list):
+    #     for dot in dots:
+    #         self.results.append(round(self.func(dot[0], dot[1]), 3))
+
 
     def iterate(self, dots: list):
         for dot in dots:
