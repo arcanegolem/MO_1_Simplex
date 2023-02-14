@@ -14,7 +14,6 @@ class SimplexMinimize:
     n : Размерность функции\n
     m : Длина ребра\n
     epsilon : точность симплексного метода\n
-
     '''
     n      : int   # Размерность
     m      : float # Длина ребра (каво?)
@@ -30,6 +29,8 @@ class SimplexMinimize:
 
     current_calc_ids: list = []
 
+    dots   : list = []
+
 
     def __init__(self, n: int, m: float, epsilon: float, starting_x1: float, starting_x2: float, func) -> None:
 
@@ -44,6 +45,7 @@ class SimplexMinimize:
         self.func = func
 
         starting_coords_heights = [[starting_x1, starting_x2]] + self.getAdditionalStartingValues(x1_0 = starting_x1, x2_0 = starting_x2)
+        self.dots + starting_coords_heights
 
         self.iterate(starting_coords_heights)
 
@@ -64,11 +66,7 @@ class SimplexMinimize:
         return ((sqrt(self.n + 1) + self.n - 1) / (self.n * sqrt(2))) * self.m
     
 
-    def calcNewHeights(self):
-        pass 
-
-
-    def getAdditionalStartingValues(self, x1_0, x2_0):
+    def getAdditionalStartingValues(self, x1_0, x2_0) -> list:
         '''
         Получение дополнительных вершин под индексами 1 и 2
         '''
@@ -81,21 +79,61 @@ class SimplexMinimize:
 
 
     def find_3_lowest(self):
+        '''
+        Нахождение индексов наименьших результатов
+        '''
         sorted_res = sorted(self.results)[:3:]
-        self.current_calc_ids = sorted_res
+        self.current_calc_ids = list(map(lambda it: self.results.index(it), sorted_res))
+
+
+    def find_exclusion(self):
+        '''
+        Нахождение наибольшего среди наименьших
+        '''
+        tmp_value = self.results[self.current_calc_ids[0]]
+        exclusion = 0
+
+        for cc in self.current_calc_ids:
+            if self.results[cc] > tmp_value:
+                exclusion = cc
         
+        self.exclude.append(exclusion)
 
-    #def calcWeightCenter(self):
 
-    # def k0_iteration(self, dots: list):
-    #     for dot in dots:
-    #         self.results.append(round(self.func(dot[0], dot[1]), 3))
+    def reduction(self):
+        pass
+
+
+    def find_reflected_dot(self):
+        '''
+        Отражение точки
+        '''
+        dots = self.current_calc_ids.copy()
+        dots.remove(self.exclude[-1])
+
+        weight_center = self.find_weight_center(self.dots[dots[0]], self.dots[dots[1]])
+        excluded_dot = self.dots[self.exclude[-1]]
+
+        self.dots.append([(2 * weight_center - excluded_dot[0]), (2 * weight_center - excluded_dot[1])])
+
+    
+    def find_weight_center(self, dot_1_coords: list, dot_2_coords: list):
+        '''
+        Нахождение центра тяжести
+        '''
+        return [(0.5 * (dot_1_coords[0] + dot_2_coords[0])), (0.5 * (dot_1_coords[1] + dot_2_coords[1]))]
+
+
+    def prepare(self, dots: list):
+        for dot in dots:
+            self.results.append(round(self.func(dot[0], dot[1]), 3))
 
 
     def iterate(self, dots: list):
-        for dot in dots:
-            self.results.append(round(self.func(dot[0], dot[1]), 3)) 
+        pass
 
 
 simplex = SimplexMinimize(n = 2, m = 0.5, epsilon = 0.1, starting_x1 = 1, starting_x2 = 1, func = targetFunction)
 print(simplex.results)
+simplex.find_3_lowest()
+print(simplex.find_exclusion())
