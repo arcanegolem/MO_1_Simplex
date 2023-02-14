@@ -101,7 +101,24 @@ class SimplexMinimize:
 
 
     def reduction(self):
-        pass
+        '''
+        Нахождение редукции
+        '''
+        min_id = self.find_min_id()
+
+        buff_calc = self.current_calc_ids.copy()
+        buff_calc.remove(min_id)
+
+        self.dots[buff_calc[0]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[0]][0]) - self.dots[buff_calc[min_id]][0]), 
+                                   (self.dots[min_id][1] + 0.5(self.dots[buff_calc[0]][1]) - self.dots[buff_calc[min_id]][1])]
+        
+        self.dots[buff_calc[1]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[1]][0]) - self.dots[buff_calc[min_id]][0]), 
+                                   (self.dots[min_id][1] + 0.5(self.dots[buff_calc[1]][1]) - self.dots[buff_calc[min_id]][1])]
+
+
+    def find_min_id(self):
+        sorted_res = sorted(self.results)[0]
+        return self.results.index(sorted_res)
 
 
     def find_reflected_dot(self):
@@ -131,6 +148,18 @@ class SimplexMinimize:
 
     def iterate(self, dots: list):
         pass
+
+    
+    def check_epsilon(self, wc):
+        '''
+        Проверка на соответствие критериям
+        '''
+        for id in self.current_calc_ids:
+            if self.results[id] - wc < self.epsilon:
+                continue
+            else: return False
+
+        return True
 
 
 simplex = SimplexMinimize(n = 2, m = 0.5, epsilon = 0.1, starting_x1 = 1, starting_x2 = 1, func = targetFunction)
