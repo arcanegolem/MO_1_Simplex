@@ -48,6 +48,7 @@ class SimplexMinimize:
         self.dots + starting_coords_heights
 
         self.iterate(starting_coords_heights)
+        print(self.dots)
 
         print(starting_coords_heights)
 
@@ -109,11 +110,8 @@ class SimplexMinimize:
         buff_calc = self.current_calc_ids.copy()
         buff_calc.remove(min_id)
 
-        self.dots[buff_calc[0]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[0]][0]) - self.dots[buff_calc[min_id]][0]), 
-                                   (self.dots[min_id][1] + 0.5(self.dots[buff_calc[0]][1]) - self.dots[buff_calc[min_id]][1])]
-        
-        self.dots[buff_calc[1]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[1]][0]) - self.dots[buff_calc[min_id]][0]), 
-                                   (self.dots[min_id][1] + 0.5(self.dots[buff_calc[1]][1]) - self.dots[buff_calc[min_id]][1])]
+        self.dots[buff_calc[0]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[0]][0]) - self.dots[buff_calc[min_id]][0]), (self.dots[min_id][1] + 0.5(self.dots[buff_calc[0]][1]) - self.dots[buff_calc[min_id]][1])]
+        self.dots[buff_calc[1]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[1]][0]) - self.dots[buff_calc[min_id]][0]), (self.dots[min_id][1] + 0.5(self.dots[buff_calc[1]][1]) - self.dots[buff_calc[min_id]][1])]
 
 
     def find_min_id(self):
@@ -163,6 +161,3 @@ class SimplexMinimize:
 
 
 simplex = SimplexMinimize(n = 2, m = 0.5, epsilon = 0.1, starting_x1 = 1, starting_x2 = 1, func = targetFunction)
-print(simplex.results)
-simplex.find_3_lowest()
-print(simplex.find_exclusion())
