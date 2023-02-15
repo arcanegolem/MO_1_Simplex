@@ -15,7 +15,7 @@ class Dot:
         self.coord_y = coord_y
 
 
-    def __mul__(self, other: Dot) -> Dot:
+    def __mul__(self, other: float) -> Dot:
         return Dot(round(self.coord_x * other, 3), round(self.coord_y * other, 3))
 
 
@@ -49,16 +49,9 @@ class Dot:
     
 
 def sum_dots(dot_list: list) -> Dot:
-    buff_dot = Dot(0.0, 0.0)
+    buff_dot = Dot(0, 0)
 
     for dot in dot_list:
         buff_dot = buff_dot + dot
 
     return buff_dot
-
-# dot_1 = Dot(1.32, 10.21)
-# dot_2 = Dot(0.32, 10.21 )
-
-# print(str(dot_1 - dot_2))
-
-#Dot: x = 1.129, y = 1.483

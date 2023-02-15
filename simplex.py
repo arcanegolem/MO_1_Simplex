@@ -1,18 +1,16 @@
 from dot import Dot, sum_dots
 from math import sqrt, pow, exp
-
-
-# def targetFunction(x1: float, x2: float) -> float:
-#     '''
-#     Функция 13 варианта
-#     '''
-#     return pow(x1, 2) + exp(pow(x1, 2) + pow(x2, 2)) + (4 * x1) + (3 * x2)
+import sys
 
 def targetFunction(dot: Dot) -> float:
     '''
     Функция 13 варианта
     '''
     return round(pow(dot.coord_x, 2) + exp(pow(dot.coord_x, 2) + pow(dot.coord_y, 2)) + (4 * dot.coord_x) + (3 * dot.coord_y), 3)
+
+
+def guidedFunction(dot: Dot) -> float:
+    return round(pow(dot.coord_x, 2) - (dot.coord_x * dot.coord_y) + (3 * pow(dot.coord_y, 2)) - dot.coord_x, 3)
 
 
 class Simplex:
@@ -51,8 +49,13 @@ class Simplex:
         # Шаг 2
         print("\nТочки в списке после первоначального заполнения:")
         self.generateDotsInitial()
+        for res in self.dots:
+            print(str(res) + "\t: ", str(self.dots[res]))
+
+        iters = 0
 
         while not isDone:
+            iters += 1
             # Шаг 3
             print("\nИсключаемая точка:")
             exclusion = self.findResultToExclude()
@@ -81,9 +84,10 @@ class Simplex:
 
             # Шаг 8
             print("\nРезультат проверки на остановку:")
-            print("Критерий останова: " + str(self.checkStopCriteria(wc)))
-
             isDone = self.checkStopCriteria(wc)
+            print("Критерий останова: " + str(isDone))
+
+        print("Всего итераций: ", iters)
 
     
     def generateDotsInitial(self):
@@ -96,12 +100,9 @@ class Simplex:
         self.dots[self.targetFunc(newDot_1)] = newDot_1
         self.dots[self.targetFunc(newDot_2)] = newDot_2
 
-        for dot in self.dots:
-            print(str(dot) + "\t: {}".format(self.dots[dot]))
-
 
     def findResultToExclude(self):
-        max_res = -100000
+        max_res = -sys.maxsize
 
         for result, dot in self.dots.items():
             if result > max_res:
@@ -120,7 +121,7 @@ class Simplex:
 
 
     def findMinValDot(self):
-        min_result = 1000000
+        min_result = sys.maxsize
 
         for result, dot in self.dots.items():
             if result < min_result:
@@ -131,8 +132,24 @@ class Simplex:
 
 
     def reduce(self):
-        print("reduction occured!")
-        pass
+        print("Результат хуже. Отмена! Редукция!")
+
+        minValDot = self.findMinValDot()
+        minDot = minValDot[1]
+
+        res_to_del = []
+
+        for result, dot in self.dots.copy().items():
+            if dot == minDot:
+                continue
+            else:
+                newDot = minDot + ((dot - minDot) * 0.5)
+                self.dots[self.targetFunc(newDot)] = newDot
+                res_to_del.append(result)
+
+        for key in res_to_del:
+            if key in self.dots.copy():
+                del self.dots[key]
 
 
     def reflectDotAndResult(self, wc, dot) -> tuple:
@@ -158,12 +175,12 @@ class Simplex:
         isStopped = True
 
         for dot in self.dots.values():
-            cmp_to_eps = abs(self.targetFunc(dot) - self.targetFunc(wc))
+            cmp_to_eps = abs(round(self.targetFunc(dot) - self.targetFunc(wc), 3))
             if cmp_to_eps < self.epsilon:
-                print(str(dot) + " : " + str(cmp_to_eps) + " < ", self.epsilon)
+                print(str(cmp_to_eps) + " < ", self.epsilon)
             else:
                 isStopped = False
-                print(str(dot) + " : " + str(cmp_to_eps) + " > ", self.epsilon)
+                print(str(cmp_to_eps) + " > ", self.epsilon)
 
         return isStopped
 
@@ -182,4 +199,4 @@ class Simplex:
         return ((sqrt(self.n + 1) + self.n - 1) / (self.n * sqrt(2))) * self.m
 
 
-simplex = Simplex(n = 2, start_dot = Dot(1.0, 1.0), m = 0.5, epsilon = 0.1, targetFunction = targetFunction)
+simplex = Simplex(n = 2, start_dot = Dot(1, 1), m = 0.5, epsilon = 0.1, targetFunction = targetFunction)
