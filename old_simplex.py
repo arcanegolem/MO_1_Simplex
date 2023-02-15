@@ -47,8 +47,21 @@ class SimplexMinimize:
         starting_coords_heights = [[starting_x1, starting_x2]] + self.getAdditionalStartingValues(x1_0 = starting_x1, x2_0 = starting_x2)
         self.dots + starting_coords_heights
 
-        self.iterate(starting_coords_heights)
-        print(self.dots)
+        done = False
+
+        self.prepare(starting_coords_heights)
+        self.find_3_lowest()
+        self.find_exclusion()
+        self.find_reflected_dot()
+
+        if self.check_if_correct():
+            pass
+        else:
+            self.reduction()
+
+        self.find_3_lowest
+        simplex_wc = self.find_simplex_wc()
+        done = self.check_epsilon(simplex_wc)
 
         print(starting_coords_heights)
 
@@ -86,6 +99,16 @@ class SimplexMinimize:
         sorted_res = sorted(self.results)[:3:]
         self.current_calc_ids = list(map(lambda it: self.results.index(it), sorted_res))
 
+    
+    def check_if_correct(self) -> bool:
+        old_res = self.results[self.exclude[-1]]
+        new_res = self.results[-1]
+
+        if new_res < old_res:
+            return True
+        
+        return False
+
 
     def find_exclusion(self):
         '''
@@ -114,7 +137,7 @@ class SimplexMinimize:
         self.dots[buff_calc[1]] = [(self.dots[min_id][0] + 0.5(self.dots[buff_calc[1]][0]) - self.dots[buff_calc[min_id]][0]), (self.dots[min_id][1] + 0.5(self.dots[buff_calc[1]][1]) - self.dots[buff_calc[min_id]][1])]
 
 
-    def find_min_id(self):
+    def find_min_id(self) -> int:
         sorted_res = sorted(self.results)[0]
         return self.results.index(sorted_res)
 
@@ -132,11 +155,20 @@ class SimplexMinimize:
         self.dots.append([(2 * weight_center - excluded_dot[0]), (2 * weight_center - excluded_dot[1])])
 
     
-    def find_weight_center(self, dot_1_coords: list, dot_2_coords: list):
+    def find_weight_center(self, dot_1_coords: list, dot_2_coords: list) -> float:
         '''
         Нахождение центра тяжести
         '''
         return [(0.5 * (dot_1_coords[0] + dot_2_coords[0])), (0.5 * (dot_1_coords[1] + dot_2_coords[1]))]
+    
+
+    def find_simplex_wc(self):
+        operated_dots_ids = self.current_calc_ids
+        dot_1 = self.dots[operated_dots_ids[0]]
+        dot_2 = self.dots[operated_dots_ids[1]]
+        dot_3 = self.dots[operated_dots_ids[2]]
+
+        return [(1/(self.n + 1))*(dot_1[0] + dot_2[0] + dot_3[0]), (1/(self.n + 1))*(dot_1[1] + dot_2[1] + dot_3[1])]
 
 
     def prepare(self, dots: list):
@@ -148,7 +180,7 @@ class SimplexMinimize:
         pass
 
     
-    def check_epsilon(self, wc):
+    def check_epsilon(self, wc) -> bool:
         '''
         Проверка на соответствие критериям
         '''
