@@ -6,11 +6,15 @@ def targetFunction(dot: Dot) -> float:
     '''
     Функция 13 варианта
     '''
-    return round(pow(dot.coord_x, 2) + exp(pow(dot.coord_x, 2) + pow(dot.coord_y, 2)) + (4 * dot.coord_x) + (3 * dot.coord_y), 3)
+    return pow(dot.coord_x, 2) + exp(pow(dot.coord_x, 2) + pow(dot.coord_y, 2)) + (4 * dot.coord_x) + (3 * dot.coord_y)
 
 
 def guidedFunction(dot: Dot) -> float:
-    return round(pow(dot.coord_x, 2) - (dot.coord_x * dot.coord_y) + (3 * pow(dot.coord_y, 2)) - dot.coord_x, 3)
+    return pow(dot.coord_x, 2) - (dot.coord_x * dot.coord_y) + (3 * pow(dot.coord_y, 2)) - dot.coord_x
+
+
+def methodFunction(dot: Dot) -> float:
+    return 2.8 * pow(dot.coord_y, 2) + 1.9 * dot.coord_x + 2.7 * pow(dot.coord_x, 2) + 1.6 - 1.9 * dot.coord_y
 
 
 class Simplex:
@@ -52,7 +56,7 @@ class Simplex:
         for res in self.dots:
             print(str(res) + "\t: ", str(self.dots[res]))
 
-        iters = 0
+        iters = -1
 
         while not isDone:
             iters += 1
@@ -94,14 +98,17 @@ class Simplex:
         '''
         Создание начальных точек
         '''
-        newDot_1 = self.startingDot + Dot(round(self.calcDelta1(), 3), round(self.calcDelta2(), 3))
-        newDot_2 = self.startingDot + Dot(round(self.calcDelta2(), 3), round(self.calcDelta1(), 3))
+        newDot_1 = self.startingDot + Dot(self.calcDelta1(), self.calcDelta2())
+        newDot_2 = self.startingDot + Dot(self.calcDelta2(), self.calcDelta1())
 
         self.dots[self.targetFunc(newDot_1)] = newDot_1
         self.dots[self.targetFunc(newDot_2)] = newDot_2
 
 
     def findResultToExclude(self):
+        '''
+        Нахождение точки с максимальным результатом функции
+        '''
         max_res = -sys.maxsize
 
         for result, dot in self.dots.items():
@@ -113,6 +120,9 @@ class Simplex:
     
 
     def checkAndSwap(self, exclusion: tuple, reflection: tuple):
+        '''
+        Проверка отраженной точки и при успехе замена исключаемой, при неудаче редукция
+        '''
         if reflection[0] < exclusion[0]:
             self.dots[reflection[0]] = reflection[1]
             del self.dots[exclusion[0]]
@@ -121,6 +131,9 @@ class Simplex:
 
 
     def findMinValDot(self):
+        '''
+        Нахождение точки с наименьшим результатом функции в ней
+        '''
         min_result = sys.maxsize
 
         for result, dot in self.dots.items():
@@ -132,6 +145,9 @@ class Simplex:
 
 
     def reduce(self):
+        '''
+        Редукция при ухудшении результата
+        '''
         print("Результат хуже. Отмена! Редукция!")
 
         minValDot = self.findMinValDot()
@@ -153,11 +169,17 @@ class Simplex:
 
 
     def reflectDotAndResult(self, wc, dot) -> tuple:
+        '''
+        Отражение точки и возвращение точки и координат функции в этой точке
+        '''
         reflected_dot = (wc * 2) - dot
         return (self.targetFunc(reflected_dot), reflected_dot)
     
 
     def findCutWeightCenter(self, excludedDot: Dot) -> Dot:
+        '''
+        Центр тяжести без исключаемой точки
+        '''
         operated_dots = []
 
         for result, dot in self.dots.items():
@@ -168,14 +190,20 @@ class Simplex:
     
 
     def findFullWeightCenter(self) -> Dot:
-        return (sum_dots(self.dots.values())) * (1/self.n)
+        '''
+        Нахождение центра тяжести всего симплекса
+        '''
+        return (sum_dots(self.dots.values())) * (1/(self.n + 1))
     
 
     def checkStopCriteria(self, wc):
+        '''
+        Проверка критерия останова
+        '''
         isStopped = True
 
         for dot in self.dots.values():
-            cmp_to_eps = abs(round(self.targetFunc(dot) - self.targetFunc(wc), 3))
+            cmp_to_eps = abs(self.targetFunc(dot) - self.targetFunc(wc))
             if cmp_to_eps < self.epsilon:
                 print(str(cmp_to_eps) + " < ", self.epsilon)
             else:
@@ -199,4 +227,4 @@ class Simplex:
         return ((sqrt(self.n + 1) + self.n - 1) / (self.n * sqrt(2))) * self.m
 
 
-simplex = Simplex(n = 2, start_dot = Dot(1, 1), m = 0.5, epsilon = 0.1, targetFunction = targetFunction)
+simplex = Simplex(n = 2, start_dot = Dot(10, 5), m = 3, epsilon = 0.01, targetFunction = targetFunction)

@@ -16,15 +16,15 @@ class Dot:
 
 
     def __mul__(self, other: float) -> Dot:
-        return Dot(round(self.coord_x * other, 3), round(self.coord_y * other, 3))
+        return Dot(self.coord_x * other, self.coord_y * other)
 
 
     def __add__(self, other: Dot) -> Dot:
-        return Dot(round(self.coord_x + other.coord_x, 3), round(self.coord_y + other.coord_y, 3))
+        return Dot(self.coord_x + other.coord_x, self.coord_y + other.coord_y)
     
 
     def __sub__(self, other: Dot):
-        return Dot(round(self.coord_x - other.coord_x, 3), round(self.coord_y - other.coord_y, 3))
+        return Dot(self.coord_x - other.coord_x, self.coord_y - other.coord_y)
     
 
     def __eq__(self, other: Dot) -> bool:
